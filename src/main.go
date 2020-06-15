@@ -24,7 +24,7 @@ func bindParam() *GateWay{
 
 	flag.BoolVar(&help, "h", false, "Parameter Description")
 	flag.StringVar(&port, "p", "8080", "Gateway port number")
-	flag.BoolVar(&openwx, "openwx", true, "Whether to open the WeChat interface")
+	flag.BoolVar(&openwx, "openwx", false, "Whether to open the WeChat interface")
 	//日志相关
 	flag.BoolVar(&logfile, "lf", false, "Whether the log is recorded to a file")
 	flag.IntVar(&loglevel, "ll", 1, "Log output level")
