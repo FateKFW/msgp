@@ -28,7 +28,7 @@ func (ml *MSGPLog) InitMSGPLog(isfile bool,level int){
 
 func (ml *MSGPLog) Debug(content interface{}){
 	if ml.logLevel <= 1 {
-		ml.logger.Printf(" DEBUG: %v", content)
+		ml.logger.Output(2, fmt.Sprintf(" DEBUG: %v", content))
 	}
 }
 
