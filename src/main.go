@@ -67,10 +67,12 @@ func bindParam() *GateWay{
 }
 
 func (gw *GateWay) start() {
-	//微信服务器接入
-	http.HandleFunc("/wx/access", gw.wx.WxAccess)
-	//发送模板消息
-	http.HandleFunc("/wx/send", gw.wx.SendTemplateMessage)
+	if gw.OpenWX {
+		//微信服务器接入
+		http.HandleFunc("/wx/access", gw.wx.WxAccess)
+		//发送模板消息
+		http.HandleFunc("/wx/send", gw.wx.SendTemplateMessage)
+	}
 
 	//开启服务
 	mlog.Info("Gateway service started successfully")
