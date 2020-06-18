@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"msgp/util"
 	"net/http"
 	"strings"
-	"util"
 )
 
 //启动模板消息发送任务

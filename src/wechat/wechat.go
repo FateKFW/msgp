@@ -1,12 +1,11 @@
 package wechat
 
 import (
-	"fmt"
-	"msgplog"
+	"msgp/log"
+	"msgp/util"
 	"net/http"
 	"sort"
 	"strings"
-	"util"
 )
 
 const (
@@ -41,7 +40,7 @@ func (wc *WeChat) WxAccess(res http.ResponseWriter, req *http.Request) {
 		//TODO:返回XML格式数据
 		buff := make([]byte, 4096)
 		i,_ := req.Body.Read(buff)
-		fmt.Println(string(buff[:i]))
+		wlog.Result("wechat return", string(buff[:i]))
 	}
 	//取出参数
 	query := req.URL.Query()

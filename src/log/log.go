@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+const (
+	DEBUG = 1
+	INFO = 2
+	WARRING = 3
+	ERROR = 4
+)
+
 var Logger = new(MSGPLog)
 
 type MSGPLog struct {
@@ -27,35 +34,35 @@ func (ml *MSGPLog) InitMSGPLog(isfile bool,level int){
 }
 
 func (ml *MSGPLog) Debug(content interface{}){
-	if ml.logLevel <= 1 {
+	if ml.logLevel <= DEBUG {
 		ml.logger.Output(2, fmt.Sprintf(" DEBUG: %v", content))
 	}
 }
 
 //打印Info
 func (ml *MSGPLog) Info(content interface{}){
-	if ml.logLevel <= 2 {
+	if ml.logLevel <= INFO {
 		ml.logger.Output(2, fmt.Sprintf(" INFO: %v", content))
 	}
 }
 
 //打印Info,格式化打印
 func (ml *MSGPLog) Infof(fmtstr string, content ...interface{}){
-	if ml.logLevel <= 2 {
+	if ml.logLevel <= INFO {
 		ml.logger.Output(2, fmt.Sprintf(" INFO: " + fmtstr, content))
 	}
 }
 
 //打印Warring
 func (ml *MSGPLog) Warring(content interface{}){
-	if ml.logLevel <= 3 {
+	if ml.logLevel <= WARRING {
 		ml.logger.Output(2, fmt.Sprintf(" WARRING: %v", content))
 	}
 }
 
 //打印Error,退出程序
 func (ml *MSGPLog) Error(err interface{}){
-	if ml.logLevel <= 4 {
+	if ml.logLevel <= ERROR {
 		s := fmt.Sprintf(" ERROR: %v", err)
 		ml.logger.Output(2, s)
 		panic(s)
@@ -64,7 +71,7 @@ func (ml *MSGPLog) Error(err interface{}){
 
 //打印Error,不退出程序
 func (ml *MSGPLog) NError(err interface{}){
-	if ml.logLevel <= 4 {
+	if ml.logLevel <= ERROR {
 		s := fmt.Sprintf(" ERROR: %v", err)
 		ml.logger.Output(2, s)
 	}
