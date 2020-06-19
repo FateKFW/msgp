@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 )
 
 const (
 	//accessToken过期时长(不能设置超过2小时)
-	EXPIRE int64 = 6900
+	EXPIRE = 1*time.Hour + 55*time.Minute
 	//获取accessToken的URL
 	ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s"
 	//发送模板消息的URL
@@ -24,13 +25,12 @@ type WeChat struct {
 	AppSecret string	`json:appsecret`
 	Token string		`json:token`
 	RecordReturn bool	`json:recordreturn`
-	accessToken map[string]interface{}
+	accessToken string
 }
 
 //初始化相关参数
 func (wc *WeChat) InitWeChatParams(){
-	wc.accessToken = make(map[string]interface{})
-	wc.reqAccessToken()
+	util.Timer(wc.reqAccessToken, EXPIRE)
 }
 
 //微信服务器请求接入

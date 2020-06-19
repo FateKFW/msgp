@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 func SHA1(str string) string{
@@ -24,4 +25,14 @@ func JsonStr2Map(jsonstr string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	return result, nil
+}
+
+//定时器
+func Timer(fn func(),td time.Duration) {
+	go (func(){
+		for {
+			fn()
+			time.Sleep(td)
+		}
+	})()
 }

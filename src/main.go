@@ -1,10 +1,9 @@
 package main
 
-import (
-	"msgp/comn"
-)
+import "msgp/comn"
 
 func main() {
 	gw := comn.BindParam()
 	gw.Start()
 }
+

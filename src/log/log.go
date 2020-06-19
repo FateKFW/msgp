@@ -77,6 +77,14 @@ func (ml *MSGPLog) NError(err interface{}){
 	}
 }
 
+//打印Error,不退出程序
+func (ml *MSGPLog) NErrorf(fmtstr string, err ...interface{}){
+	if ml.logLevel <= ERROR {
+		s := fmt.Sprintf(" ERROR: "+fmtstr, err)
+		ml.logger.Output(2, s)
+	}
+}
+
 //打印处理结果
 func (ml *MSGPLog) Result(title string, content interface{}){
 	ml.logger.Output(2, fmt.Sprintf(" RESULT>>%v\n%v", title, content))

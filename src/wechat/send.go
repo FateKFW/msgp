@@ -29,7 +29,6 @@ func (wc *WeChat) handleTemplateMessage(openids string, tid string, data string,
 	//缓冲管道，缓冲中最多存储5000个待发
 	ch := make(chan string, 5000)
 
-	token, _ := wc.getAccessToken()
 	for _, obj := range openidArr {
 		go (func(openid string){
 			//组装请求参数
@@ -54,7 +53,7 @@ func (wc *WeChat) handleTemplateMessage(openids string, tid string, data string,
 				return
 			}
 
-			res,err := http.Post(fmt.Sprintf(SEND_TEMPLATE_URL, token), "", bytes.NewBuffer(buff))
+			res,err := http.Post(fmt.Sprintf(SEND_TEMPLATE_URL, wc.accessToken), "", bytes.NewBuffer(buff))
 			if err != nil {
 				wlog.NError(err)
 				ch <- openid + ",-3," + err.Error()
