@@ -7,23 +7,24 @@ import (
 	"msgp/util"
 	"net/http"
 	"strings"
+	"time"
 )
 
 //启动模板消息发送任务
-func (wc *WeChat) SendTemplateMessage(res http.ResponseWriter, req *http.Request) {
+func (wx *WeChat) SendTemplateMessage(res http.ResponseWriter, req *http.Request) {
 	openids, tid, data, url :=
 		req.PostFormValue("openids"),
 		req.PostFormValue("tid"),
 		req.PostFormValue("data"),
 		req.PostFormValue("url")
 
-	go wc.handleTemplateMessage(openids, tid, data, url)
+	go wx.handleTemplateMessage(openids, tid, data, url)
 
 	res.Write([]byte("模板消息发送已执行，发送结果请查看XXXXX"))
 }
 
 //执行模板消息发送
-func (wc *WeChat) handleTemplateMessage(openids string, tid string, data string, url string) {
+func (wx *WeChat) handleTemplateMessage(openids string, tid string, data string, url string) {
 	//需要发送的人员
 	openidArr := strings.Split(openids, ",")
 	//缓冲管道，缓冲中最多存储5000个待发
@@ -53,7 +54,7 @@ func (wc *WeChat) handleTemplateMessage(openids string, tid string, data string,
 				return
 			}
 
-			res,err := http.Post(fmt.Sprintf(SEND_TEMPLATE_URL, wc.accessToken), "", bytes.NewBuffer(buff))
+			res,err := http.Post(fmt.Sprintf(SEND_TEMPLATE_URL, wx.accessToken), "", bytes.NewBuffer(buff))
 			if err != nil {
 				wlog.NError(err)
 				ch <- openid + ",-3," + err.Error()
@@ -77,4 +78,23 @@ func (wc *WeChat) handleTemplateMessage(openids string, tid string, data string,
 		//TODO
 		wlog.Result("Send message execution result", result)
 	}
+}
+
+//处理普通消息-文本消息
+func (wx *WeChat) handleTextMessage(push WXPush) []byte{
+	wlog.Infof("accept openid:%s message", push.Openid)
+	msg := fmt.Sprintf("<xml>" +
+		"<ToUserName><![CDATA[%s]]></ToUserName>" +
+		"<FromUserName><![CDATA[%s]]></FromUserName>" +
+		"<CreateTime>%v</CreateTime>" +
+		"<MsgType><![CDATA[text]]></MsgType>" +
+		"<Content><![CDATA[%s]]></Content>" +
+		"</xml>",push.Openid, wx.fromUserName, time.Now().Unix(), getRobotMessage(push.Content))
+	return []byte(msg)
+}
+
+func getRobotMessage(content string) string{
+	content = strings.ReplaceAll(content, "吗", "")
+	content = strings.ReplaceAll(content, "?", "")
+	return content
 }

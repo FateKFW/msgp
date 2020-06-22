@@ -26,9 +26,9 @@ type MSGPLog struct {
 func (ml *MSGPLog) InitMSGPLog(isfile bool,level int){
 	if isfile {
 		logFile, _ := os.Create("."+ string(filepath.Separator) + time.Now().Format("20060102_150405") + ".txt")
-		ml.logger = log.New(logFile, "GateWay ", log.Lshortfile | log.Ldate | log.Ltime)
+		ml.logger = log.New(logFile, "MSGP ", log.Lshortfile | log.Ldate | log.Ltime)
 	} else {
-		ml.logger = log.New(os.Stdout, "GateWay ", log.Lshortfile | log.Ldate | log.Ltime)
+		ml.logger = log.New(os.Stdout, "MSGP ", log.Lshortfile | log.Ldate | log.Ltime)
 	}
 	ml.logLevel = level
 }

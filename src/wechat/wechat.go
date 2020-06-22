@@ -1,6 +1,7 @@
 package wechat
 
 import (
+	"encoding/xml"
 	"msgp/log"
 	"msgp/util"
 	"net/http"
@@ -25,40 +26,75 @@ type WeChat struct {
 	AppSecret string	`json:appsecret`
 	Token string		`json:token`
 	RecordReturn bool	`json:recordreturn`
+	fromUserName string
 	accessToken string
 }
 
+type WXPush struct {
+	XMLName xml.Name	`xml:xml`
+	ToUserName string	`xml:ToUserName`
+	FromUserName string	`xml:FromUserName`
+	CreateTime int64	`xml:CreateTime`
+	MsgType string		`xml:MsgType`
+	MsgId string		`xml:MsgId`
+	//普通消息使用
+	Content string		`xml:Content`
+	Openid string
+}
+
+
 //初始化相关参数
-func (wc *WeChat) InitWeChatParams(){
-	util.Timer(wc.reqAccessToken, EXPIRE)
+func (wx *WeChat) InitWeChatParams(){
+	wx.fromUserName = "gh_1e29e748bead"
+	util.Timer(wx.reqAccessToken, EXPIRE)
 }
 
 //微信服务器请求接入
-func (wc *WeChat) WxAccess(res http.ResponseWriter, req *http.Request) {
-	//处理回传
-	if wc.RecordReturn {
-		//TODO:返回XML格式数据
-		buff := make([]byte, 4096)
-		i,_ := req.Body.Read(buff)
-		wlog.Result("wechat return", string(buff[:i]))
-	}
+func (wx *WeChat) WxAccess(res http.ResponseWriter, req *http.Request) {
 	//取出参数
 	query := req.URL.Query()
-	signature, timestamp, nonce, echostr :=
-		query.Get("signature"), query.Get("timestamp"),
-		query.Get("nonce"), query.Get("echostr")
+	signature, timestamp, nonce, echostr,openid :=
+		query.Get("signature"),
+		query.Get("timestamp"),
+		query.Get("nonce"),
+		query.Get("echostr"),
+		query.Get("openid")
 
-	//按照微信接入规则校验参数
-	param := []string{wc.Token, timestamp, nonce}
-	sort.Strings(param)
-	cry := util.SHA1(strings.Join(param, ""))
+	if openid != "" {	//微信服务器回传
+		//回传处理是否开启
+		if wx.RecordReturn {
+			var push WXPush
+			err := xml.NewDecoder(req.Body).Decode(&push)
+			if err != nil {
+				wlog.NError(err)
+			}
+			push.Openid = openid
+			res.Write(wx.handlePush(push))
+		}
+	} else {			//微信服务器对接
+		//按照微信接入规则校验参数
+		param := []string{wx.Token, timestamp, nonce}
+		sort.Strings(param)
+		cry := util.SHA1(strings.Join(param, ""))
 
-	//验证成功
-	if signature == cry {
-		res.Write([]byte(echostr))
-		wlog.Info("WeChat server access verification succeeded")
+		//验证成功
+		if signature == cry {
+			res.Write([]byte(echostr))
+			wlog.Info("WeChat server access verification succeeded")
+		} else {
+			res.Write([]byte("failed"))
+			wlog.Info("WeChat server access verification failed")
+		}
+	}
+}
+
+//处理微信服务器回传
+func (wx *WeChat) handlePush(push WXPush) []byte{
+	if "text" == push.MsgType {
+		return wx.handleTextMessage(push)
 	} else {
-		res.Write([]byte("failed"))
-		wlog.Info("WeChat server access verification failed")
+		wlog.Info(push)
+		wlog.Info("No support for processing messages")
+		return []byte("(✺ω✺)")
 	}
 }

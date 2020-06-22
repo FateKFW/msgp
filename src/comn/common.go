@@ -10,13 +10,13 @@ import (
 
 var clog = msgplog.Logger
 
-type GateWay struct {
+type Msgp struct {
 	Port string
 	OpenWX bool
 	Wx *wechat.WeChat
 }
 
-func BindParam() *GateWay{
+func BindParam() *Msgp{
 	//命令行参数绑定(是否改成配置文件形式?)
 	var port, appid, appsecret, token string
 	var help, recordreturn, logfile, openwx bool
@@ -45,7 +45,7 @@ func BindParam() *GateWay{
 
 	//消息处理总接口初始
 	clog.Info("Initialize the msgp")
-	gw := &GateWay{":"+port, openwx, nil}
+	gw := &Msgp{":"+port, openwx, nil}
 	clog.Info("Successfully Initialize the msgp")
 
 	//微信初始
@@ -65,17 +65,17 @@ func BindParam() *GateWay{
 	return gw
 }
 
-func (gw *GateWay) Start() {
-	if gw.OpenWX {
+func (mp *Msgp) Start() {
+	if mp.OpenWX {
 		//微信服务器接入
-		http.HandleFunc("/wx/access", gw.Wx.WxAccess)
+		http.HandleFunc("/wx/access", mp.Wx.WxAccess)
 		//发送模板消息
-		http.HandleFunc("/wx/send", gw.Wx.SendTemplateMessage)
+		http.HandleFunc("/wx/send", mp.Wx.SendTemplateMessage)
 	}
 
 	//开启服务
 	clog.Info("msgp service started successfully")
-	err := http.ListenAndServe(gw.Port, nil)
+	err := http.ListenAndServe(mp.Port, nil)
 	if err != nil {
 		clog.Error(err)
 	}

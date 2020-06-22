@@ -27,6 +27,8 @@ func JsonStr2Map(jsonstr string) (map[string]interface{}, error) {
 	return result, nil
 }
 
+
+
 //定时器
 func Timer(fn func(),td time.Duration) {
 	go (func(){
